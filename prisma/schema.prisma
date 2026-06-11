@@ -1,0 +1,121 @@
+// Prisma schema for Biuloo Motors
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no native enum support, so the enums below are modeled as
+// Strings. Allowed values are enforced in application code:
+// Role: ADMIN | USER
+// CarType: ELECTRIC | HYBRID | ICE
+// OrderStage: NEW | CONTRACT_DRAFT | CONTRACT_SIGNED | PAYMENT | PURCHASING
+//             | SHIPPING | CUSTOMS | ARRIVED | READY | COMPLETED
+// ContractStatus: DRAFT | SIGNED
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         String   @default("USER")
+  createdAt    DateTime @default(now())
+
+  orders Order[]
+}
+
+model Car {
+  id          String   @id @default(cuid())
+  brand       String
+  model       String
+  year        Int
+  price       Float
+  currency    String   @default("USD")
+  type        String   @default("ICE")
+  description String
+  specs       String
+  images      String
+  inStock     Boolean  @default(true)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  orders Order[]
+}
+
+model Promotion {
+  id           String    @id @default(cuid())
+  title        String
+  description  String
+  discountText String
+  active       Boolean   @default(true)
+  validUntil   DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model SiteSettings {
+  id                 Int     @id @default(1)
+  colorPrimary       String  @default("#E2231A")
+  colorSecondary     String  @default("#1A1A1A")
+  colorAccent        String  @default("#FFC400")
+  colorBg            String  @default("#F7F5F2")
+  companyName        String  @default("ООО «Биулу Моторс»")
+  phone              String  @default("+375 (29) 000-00-00")
+  email              String  @default("info@biuloo.by")
+  address            String  @default("г. Минск, пр-т Победителей, 1")
+  announcementText   String  @default("Акция: бесплатная оклейка кузова защитной плёнкой при заказе до конца месяца!")
+  announcementActive Boolean @default(true)
+  telegram           String  @default("https://t.me/biuloo_motors")
+  instagram          String  @default("https://instagram.com/biuloo_motors")
+  whatsapp           String  @default("https://wa.me/375290000000")
+}
+
+model Order {
+  id        String     @id @default(cuid())
+  userId    String?
+  carId     String?
+  name      String
+  phone     String
+  email     String?
+  message   String?
+  stage     String     @default("NEW")
+  price     Float?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user         User?               @relation(fields: [userId], references: [id])
+  car          Car?                @relation(fields: [carId], references: [id])
+  stageHistory OrderStageHistory[]
+  contract     Contract?
+}
+
+model OrderStageHistory {
+  id        String   @id @default(cuid())
+  orderId   String
+  stage     String
+  changedAt DateTime @default(now())
+  comment   String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Contract {
+  id             String    @id @default(cuid())
+  orderId        String    @unique
+  number         String
+  clientName     String
+  clientPhone    String
+  clientPassport String?
+  carDescription String
+  price          Float
+  terms          String
+  status         String    @default("DRAFT")
+  createdAt      DateTime  @default(now())
+  pdfGeneratedAt DateTime?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
