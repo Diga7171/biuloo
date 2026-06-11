@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Биулу Моторс (Biuloo Motors)
 
-## Getting Started
+Сайт ООО «Биулу Моторс»: каталог автомобилей из Китая, личный кабинет с отслеживанием статуса заказа и админ-панель.
 
-First, run the development server:
+Стек: Next.js (App Router) + TypeScript + Tailwind CSS + Prisma (SQLite) + Auth.js.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Запуск проекта локально
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Установить зависимости:
+   ```bash
+   npm install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. Создать файл `.env` в корне проекта:
+   ```
+   DATABASE_URL="file:./dev.db"
+   AUTH_SECRET="<случайная строка, можно сгенерировать командой npx auth secret>"
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Применить миграции и засеять демо-данные:
+   ```bash
+   npx prisma migrate deploy
+   npm run seed
+   ```
 
-## Learn More
+4. Запустить dev-сервер:
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+Сайт будет доступен на [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Структура
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `app/` — страницы (публичный сайт, личный кабинет `/cabinet`, админ-панель `/admin`)
+- `app/actions/` — серверные действия (мутации форм)
+- `lib/` — Prisma client, конфигурация этапов заказа, генерация PDF договоров
+- `prisma/` — схема БД, миграции, сидинг
+- `components/` — UI-компоненты
 
-## Deploy on Vercel
+## Роли
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **ADMIN** — доступ к `/admin` (настройки темы, акции, каталог, заявки, пользователи)
+- **USER** — доступ к `/cabinet` (свои заявки, прогресс по 10 этапам, договор)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Учётные данные после `npm run seed` выводятся в консоль.
