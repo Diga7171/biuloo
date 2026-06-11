@@ -40,6 +40,4 @@ export async function createOrder(formData: FormData) {
   if (redirectTo) {
     redirect(`${redirectTo}?sent=1#order-${order.id}`);
   }
-
-  return order;
 }
