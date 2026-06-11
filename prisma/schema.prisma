@@ -5,12 +5,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// SQLite has no native enum support, so the enums below are modeled as
-// Strings. Allowed values are enforced in application code:
+// Enums below are modeled as Strings for portability with the original
+// SQLite setup. Allowed values are enforced in application code:
 // Role: ADMIN | USER
 // CarType: ELECTRIC | HYBRID | ICE
 // OrderStage: NEW | CONTRACT_DRAFT | CONTRACT_SIGNED | PAYMENT | PURCHASING
