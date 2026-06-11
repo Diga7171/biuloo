@@ -1,4 +1,11 @@
-type CarVariant = "sedan" | "crossover" | "suv" | "liftback" | "hatchback";
+type CarVariant =
+  | "sedan"
+  | "crossover"
+  | "suv"
+  | "liftback"
+  | "hatchback"
+  | "pickup"
+  | "minivan";
 
 const BODY_PATHS: Record<CarVariant, string> = {
   sedan:
@@ -11,6 +18,30 @@ const BODY_PATHS: Record<CarVariant, string> = {
     "M8 62 C9 50 20 46 32 45 L48 28 C55 22 66 19 80 19 L128 19 C141 19 151 24 158 32 L176 45 C186 47 195 52 196 62 L196 70 L8 70 Z",
   hatchback:
     "M10 62 C11 50 21 46 32 45 L50 30 C57 24 67 21 80 21 L122 21 C134 21 144 26 150 35 L172 45 C184 47 194 52 196 62 L196 70 L10 70 Z",
+  pickup:
+    "M6 62 C8 50 20 46 32 45 L46 28 C53 22 64 19 78 19 L110 19 L110 45 L182 45 C192 46 198 52 198 62 L198 70 L6 70 Z",
+  minivan:
+    "M6 60 C6 44 16 36 28 35 L34 22 C40 16 50 13 64 13 L150 13 C166 13 178 18 184 28 L192 38 C198 42 200 50 200 60 L200 72 L6 72 Z",
+};
+
+const WINDOW_PATHS: Record<CarVariant, string> = {
+  sedan: "M58 33 L74 24 L130 24 L150 33 Z",
+  crossover: "M54 32 L70 22 L134 22 L156 32 Z",
+  suv: "M50 30 L68 18 L136 18 L158 30 Z",
+  liftback: "M56 33 L72 23 L132 23 L154 33 Z",
+  hatchback: "M56 35 L72 25 L126 25 L148 35 Z",
+  pickup: "M58 33 L72 24 L104 24 L110 33 Z",
+  minivan: "M50 27 L66 17 L168 17 L184 27 Z",
+};
+
+const WHEEL_X: Record<CarVariant, [number, number]> = {
+  sedan: [56, 150],
+  crossover: [56, 150],
+  suv: [56, 150],
+  liftback: [56, 150],
+  hatchback: [56, 148],
+  pickup: [56, 176],
+  minivan: [58, 158],
 };
 
 export function CarSvg({
@@ -22,7 +53,10 @@ export function CarSvg({
   accent?: string;
   className?: string;
 }) {
-  const path = BODY_PATHS[(variant as CarVariant) in BODY_PATHS ? (variant as CarVariant) : "sedan"];
+  const resolvedVariant = (variant as CarVariant) in BODY_PATHS ? (variant as CarVariant) : "sedan";
+  const path = BODY_PATHS[resolvedVariant];
+  const windowPath = WINDOW_PATHS[resolvedVariant];
+  const [wheelLeftX, wheelRightX] = WHEEL_X[resolvedVariant];
 
   return (
     <svg
@@ -42,16 +76,12 @@ export function CarSvg({
       {/* body */}
       <path d={path} fill={`url(#grad-${variant})`} />
       {/* window band */}
-      <path
-        d="M58 33 L74 24 L130 24 L150 33 Z"
-        fill="white"
-        opacity="0.35"
-      />
+      <path d={windowPath} fill="white" opacity="0.35" />
       {/* wheels */}
-      <circle cx="56" cy="72" r="13" fill="#1a1a1a" />
-      <circle cx="56" cy="72" r="5.5" fill="#f7f5f2" />
-      <circle cx="150" cy="72" r="13" fill="#1a1a1a" />
-      <circle cx="150" cy="72" r="5.5" fill="#f7f5f2" />
+      <circle cx={wheelLeftX} cy="72" r="13" fill="#1a1a1a" />
+      <circle cx={wheelLeftX} cy="72" r="5.5" fill="#f7f5f2" />
+      <circle cx={wheelRightX} cy="72" r="13" fill="#1a1a1a" />
+      <circle cx={wheelRightX} cy="72" r="5.5" fill="#f7f5f2" />
     </svg>
   );
 }
